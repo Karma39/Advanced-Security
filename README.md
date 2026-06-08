@@ -1,6 +1,6 @@
 # Binary PLA Security Analysis
 
-**[Download the full report (PDF)]([report/main.pdf](https://github.com/Karma39/Advanced-Security/raw/main/report/main.pdf))**
+**[Download the full report (PDF)](https://github.com/Karma39/Advanced-Security/raw/main/report/main.pdf)**
 
 ---
 
