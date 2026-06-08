@@ -1,0 +1,35 @@
+\subsection*{What We Found}
+\begin{itemize}
+  \item The original RF-DNA SVM pipeline contains three independent evaluation biases that collectively inflate reported ADR from $\svmOrigADR \to \svmADR$ (approximately 40 percentage points).
+  \item Under a fair evaluation protocol, SVM and all three DL models
+        (MLP-FV, GRU-DGT, BiGRU+TF-Aug) achieve statistically equivalent ADR in the 0.57--0.68 range. No architecture is a clear winner.
+  \item With only five seeds the BiGRU shows ADR variance of $\pm 0.131$;
+        LOTO cross-validation provides more stable per-device estimates
+        (mean ADR \bigruLOTOadrMean, mean EER \bigruLOTOeerMean).
+  \item Dataset size is the primary performance bottleneck: each binary
+        classifier in trial\_1 trains on $\approx$52 windowed samples,
+        far below what DL models typically require to generalise reliably.
+\end{itemize}
+
+\subsection*{Contributions}
+\begin{itemize}
+  \item \textbf{Revised baseline.} Identified, isolated, and quantified three evaluation assumptions in the original RF-DNA pipeline, providing reproducible corrections with per-bias ADR measurements.
+  \item \textbf{Honest DL baseline.} First evaluation of MLP, GRU, and BiGRU architectures on this dataset under a strictly group-aware, transient-aware protocol across five seeds and LOTO.
+  \item \textbf{Data-efficiency result.} Demonstrated that sliding-window augmentation enables DL training with 10$\times$ fewer recordings by exploiting the full transient duration, confirming that device-discriminating hardware imperfections persist well beyond the initial signal segment used by the original pipeline.
+  \item \textbf{Multi-class probe.} Showed that a single BiGRU trained on all 12 devices reaches \mcAccuracy{} accuracy (vs.\ \mcRandomBaseline{} random), confirming that discriminative information exists across all devices and that architecture is not the limiting factor while dataset size is (Appendix~\ref{app:multiclass}).
+\end{itemize}
+
+\subsection*{Future Directions}
+\begin{itemize}
+  \item Collect additional independent transients per device to push ADR toward
+        operationally useful levels.
+  \item Evaluate AND-aggregation at system level to reduce the high False Accept
+        Rate under OR-aggregation.
+  \item Explore per-device classifier ensembles: training multiple models per
+        authorized device and combining their outputs via soft voting could
+        reduce the high seed-to-seed variance observed in this work and yield
+        more stable authentication decisions without architectural changes.
+  \item Conduct adversarial robustness evaluation (white-box and black-box
+        attacks on raw IQ waveforms), now that an honest unattacked baseline
+        is established.
+\end{itemize}

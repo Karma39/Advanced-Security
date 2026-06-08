@@ -1,0 +1,53 @@
+\subsection{Dataset}
+The dataset consists of RF transient recordings from 12 commodity IEEE~802.11 devices. Each recording captures the power-on transient of a single device as a 500-sample IQ sequence. Approximately 11--13 raw transients per device are available, yielding roughly \nTransients{} recordings in total. Devices are partitioned into \emph{authorized} and \emph{rogue} sets according to three predefined trial configurations.
+
+\begin{table}[htbp]
+\centering
+\caption{Trial configurations: authorized vs.\ rogue device sets.}
+\begin{tabular}{lll}
+\toprule
+\textbf{Trial} & \textbf{Authorized} & \textbf{Rogue} \\
+\midrule
+trial\_1 & dev3, dev2, dev12, dev9 & remaining 8 \\
+trial\_2 & dev10, dev6, dev12, dev3, dev11, dev1 & remaining 6 \\
+trial\_3 & dev1, dev10, dev9, dev8, dev12, dev11, dev6, dev7 & remaining 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Feature Representations}
+Two complementary representations are extracted from each raw transient.
+
+\textbf{Feature Vector (FV).} The DGT time-frequency matrix is divided into spatial patches and five statistics (mean, variance, skewness, kurtosis, range) are computed per patch, yielding a \fvDim-dimensional feature vector per transient.
+
+\textbf{DGT Matrix.} The raw \dgtRows$\times$\dgtCols{} Discrete Gabor Transform matrix is used directly, preserving the full time-frequency structure for sequential models.
+
+\subsection{Windowed Augmentation}
+To increase effective sample count, \nWindowsPerTransient{} sub-sequences are extracted from each raw transient by distributing window start points evenly across the transient duration (via \texttt{np.linspace}), producing approximately \nWindowedSamples{} samples per cache (FV and DGT). Each window is \windowWidthIQ{} IQ samples wide; because transients span roughly 100\,000 samples at 20\,MHz, consecutive windows are separated by $\approx$11\,000 samples and do not overlap. The split is transient-aware: all windows derived from the same transient are assigned to the same partition, preventing any window-level leakage across train, validation, and test sets.
+
+\subsection{Deep Learning Architectures}
+Three architectures are evaluated on the binary classification task.
+
+\textbf{MLP-FV.} A three-layer fully connected network (\mlpArch) with BatchNorm, ReLU, and Dropout ($p=\trainDropout$), operating directly on the \fvDim-dimensional feature vector (\mlpParams{} parameters).
+
+\textbf{GRU-DGT.} A \gruNumLayers-layer unidirectional GRU (hidden size \gruHiddenSize) that reads the DGT matrix row-by-row as a sequence of \dgtRows{} time frames, each with \dgtCols{} frequency bins. The final hidden state feeds a linear classifier (\gruParams{} parameters).
+
+\textbf{BiGRU-DGT + TF-Aug.} A \gruNumLayers-layer bidirectional GRU (hidden size \gruHiddenSize{} per direction) that concatenates forward and backward final hidden states before classification (\bigruParams{} parameters). The small dataset and high intra-transient correlation from sliding-window augmentation would cause the BiGRU to overfit rapidly without regularisation. A custom time-frequency masking module counteracts this by randomly zeroing contiguous time rows, frequency columns, and adding Gaussian noise to the DGT matrix during training
+($T_{\max}=\specTmax$, $F_{\max}=\specFmax$, $\sigma=\specNoise$, $p=\specProb$).
+
+All models are trained with AdamW (\trainLR, $\text{wd}=$\trainWD), batch size \trainBatch, and early stopping (patience \trainPatience) on validation loss with best-weight restoration.
+
+\subsection{Classification Scheme}
+The system uses a \emph{binary one-vs-rest} scheme: one classifier per authorized device is trained to distinguish that device (positive class) from all \emph{other authorized} devices (negative class). Rogue devices are withheld from training entirely; they are only presented to the already-trained models at evaluation time to measure rejection performance. This training protocol is consistent with the original RF-DNA pipeline (provided as the course baseline), which likewise trains exclusively on authorized devices and treats rogue devices as unseen at training time. At inference time, a signal is accepted if, after claiming its identity, the corresponding classifier accepts it.
+
+Performance is reported as:
+\begin{itemize}
+  \item \textbf{Auth TVR}: True Accept Rate for the authorized device.
+  \item \textbf{Rogue TVR}: True Reject Rate across all rogue devices.
+  \item \textbf{ADR}: Average Detection Rate $= (\text{Auth TVR} + \text{Rogue TVR})/2$.
+  \item \textbf{FAR}: Probability a binary classifier accepts a rogue device.
+  \item \textbf{FRR}: Probability a binary classifier rejects its authorized device.
+\end{itemize}
+
+\subsection{Evaluation Protocol}
+Each model is trained under a group-aware 70/15/15 split: all windows from the same raw transient are assigned to the same partition, preventing window-level leakage. Z-score normalisation is fitted on the training fold only. A first pass reports mean $\pm$ std ADR across five random seeds. Because five seeds produce high variance for the BiGRU, Leave-One-Transient-Out (LOTO) cross-validation is used as the primary protocol: each fold holds out one complete transient as test, trains on the remaining, and selects the decision threshold on a validation split. The Equal Error Rate (EER) is computed from LOTO ROC curves at the operating point where $|\text{FAR}-\text{FRR}|$ is minimised.

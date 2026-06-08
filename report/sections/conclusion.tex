@@ -1,0 +1,11 @@
+This report established a rigorous, reproducible performance baseline for RF
+fingerprinting on a 12-device dataset. Three evaluation biases in the original
+SVM pipeline were identified and corrected, reducing the reported ADR from
+near-perfect to $\approx \svmADR$. A complete DL pipeline was evaluated under
+the same honest protocol; all models achieve ADR in the 0.57--0.68 range,
+confirming that RF transient emissions carry sufficient device-discriminating
+information to support PLA above chance, while highlighting per-classifier
+sample count as the binding constraint. Addressing this --- through larger
+datasets or improved augmentation strategies --- is the most direct path
+toward operationally useful PLA. Future directions are listed in
+Section~\ref{sec:contributions}.

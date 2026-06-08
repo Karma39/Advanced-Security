@@ -1,0 +1,211 @@
+% ── 0. Scope of the revised audit ───────────────────────────────────────────────
+\subsection{Scope of the Revised Audit: Why SVM and ANOVA}
+
+The ML analysis in this work is deliberately scoped to the original
+RF-DNA pipeline from \texttt{RF\_Fingerprint.py}: an SVM with polynomial
+kernel preceded by ANOVA-based feature selection (\texttt{SelectKBest} with
+the F-test statistic).
+This is not the only possible ML pipeline for the 505-dimensional feature
+vector. In fact the same code base also implements mutual information, RFE, and PCA as alternative selectors, and other classifiers such as Random Forest or
+$k$-NN could in principle be substituted. But auditing the specific choices
+made in the original work is the prerequisite for any fair comparison.
+
+\textbf{Why SVM.}
+An SVM with polynomial kernel is a well-established choice for
+high-dimensional, small-sample classification problems.
+With $\approx$134 samples and 505 features, the dataset is firmly in the
+regime where SVMs with regularisation tend to outperform neural networks:
+there is not enough data to fit a network reliably, but the margin-maximising
+objective of the SVM generalises well when classes are linearly or
+polynomially separable in the feature space.
+
+\textbf{Why ANOVA.}
+ANOVA F-test feature selection :
+
+(\texttt{SelectKBest(f\_classif, k=k)})
+ranks features by their univariate linear correlation with the class label.
+It is computationally cheap (no cross-validation loop required), has a single
+hyperparameter ($k$, the number of features to retain), and is easy to
+interpret.
+These properties make it a natural choice when the dataset is small and
+compute budget is limited.
+
+\textbf{Time constraints.}
+Extending the revised audit to alternative classifiers and feature selectors
+was outside the scope of this project.
+Each additional pipeline variant requires its own replication, its own
+revision characterisation, and its own corrected baseline.
+Given the available time, the decision was to perform a thorough audit of
+the single pipeline that was actually used, rather than a shallow
+survey of many alternatives.
+
+% ── 1. Feasibility confirmed — but at what operating point? ──────────────────
+\subsection{Feasibility Confirmed, but Operationally Insufficient}
+
+All pipelines achieve ADR consistently above the chance level of 0.5,
+which confirms the central premise of RF fingerprinting: hardware
+imperfections embedded in power-on transients are statistically
+discriminable by both classical and deep models.
+However, the gap between feasibility and operational deployment deserves
+careful framing.
+
+% ── 2. MLP-FV vs BiGRU: a result that depends on the evaluation ──────────────
+\subsection{MLP-FV vs.\ BiGRU: Results Depend on the Evaluation Protocol}
+
+Comparing MLP-FV and BiGRU+TF-Aug requires reading both evaluations
+together, because the two protocols give different orderings.
+
+In the \emph{simple held-out evaluation} (one fixed 70/15/15 split per seed,
+five seeds), MLP-FV achieves a higher mean ADR (\mlpADR) than
+BiGRU+TF-Aug (\bigruADR).
+However, BiGRU's per-seed ADRs span from \bigruSeedADRMin{} to \bigruSeedADRMax{} --- a range of \bigruSeedADRRange{}
+across just five runs --- while MLP's range is only \mlpSeedADRRange{} (\mlpSeedADRMin--\mlpSeedADRMax).
+With such wide and overlapping confidence intervals ($n=5$), the difference in means is \emph{not statistically significant}.
+The higher mean of MLP in this evaluation is better explained by the fact that one BiGRU seed collapsed to ADR~$=0.471$ (below chance for rogue TVR) while another peaked at ADR~$=0.838$, averaging to a moderate figure that happens to fall below MLP's stable mean.
+
+Under \emph{LOTO cross-validation} --- the more data-efficient and arguably
+more rigorous protocol, the ordering reverses:
+BiGRU achieves mean ADR~$=\bigruLOTOadrMean$, MLP achieves $\mlpLOTOadrMean$, and GRU achieves
+$\gruLOTOadrMean$.
+LOTO removes the threshold-variability issue (each fold calibrates its own threshold) and maximises training data, providing a more stable comparison surface.
+On this evidence, BiGRU is marginally better than MLP, not worse.
+
+A structural reason why MLP-FV performs similarly to BiGRU is that its 505-dimensional feature vector is the result of deliberate
+domain engineering that distinguishes hardware imperfections.
+An MLP operating on this input does not need to learn which features matter
+because the engineering has done that; a BiGRU on raw DGT must discover
+the same information from scratch.
+
+The practical implication is that the RF-DNA feature vector is not merely a legacy artefact: its domain-engineered statistics act as a built-in dimensionality reduction and noise suppression layer that compensates for the limited training set. This could serve as an intermediate representation within a deeper DL pipeline by pre-processing the signal into a compact, domain-informed descriptor and then feeding it to a more expressive classifier. This hybrid strategy could inherit the stability advantages of hand-crafted features while retaining the capacity to learn higher-level discriminative patterns, making it particularly well-suited to small-dataset RF fingerprinting regimes.
+
+% ── 5. Validation-based threshold calibration ────────────────────────────────
+\subsection{Validation-Based Threshold Calibration: Tried and Rejected}
+
+A natural question when reporting LOTO results is whether the fixed decision threshold of 0.5 is optimal, or whether it can be improved by selecting the threshold from the available validation data. The LOTO pipeline was instrumented to answer this: after all folds complete, the validation scores from every fold are pooled per device and the threshold that maximises ADR on that pooled validation set is found via the ROC curve. This val-optimal threshold is then applied to the pooled test scores, giving a second set of results alongside the fixed-threshold results.
+
+Table~\ref{tab:threshold_cal} shows the outcome for the BiGRU on trial\_1.
+
+\begin{table}[htbp]
+\centering
+\caption{BiGRU LOTO: ADR at fixed threshold (0.5) vs.\ val-calibrated threshold (trial\_1).}
+\label{tab:threshold_cal}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Device} & \textbf{ADR @ 0.5} & \textbf{ADR @ opt} & \textbf{Opt threshold} \\
+\midrule
+device2  & \bigruLOTOadrTwo   & \bigruLOTOadrOptTwo   & \bigruLOTOthrTwo \\
+device3  & \bigruLOTOadrThree & \bigruLOTOadrOptThree & \bigruLOTOthrThree \\
+device9  & \bigruLOTOadrNine  & \bigruLOTOadrOptNine  & \bigruLOTOthrNine \\
+device12 & \bigruLOTOadrTwelve & \bigruLOTOadrOptTwelve & \bigruLOTOthrTwelve \\
+\midrule
+\textbf{Mean} & \textbf{\bigruLOTOadrMean} & \textbf{\bigruLOTOadrOptMean} & — \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Val-calibration \emph{hurts} overall: mean ADR drops from \bigruLOTOadrMean{} to \bigruLOTOadrOptMean.
+The same pattern holds for MLP-FV (\mlpLOTOadrMean~$\to$~\mlpLOTOadrOptMean) and GRU-DGT
+(\gruLOTOadrMean~$\to$~\gruLOTOadrOptMean). The root cause is visible in the device12 row.
+
+This is a direct consequence of the validation set being too small to reliably
+estimate a good threshold. Device12 has only 6 transients total; after
+reserving one as the test fold and one for early stopping per fold, the pooled
+val scores across all folds are too few and too concentrated to produce a
+stable operating point.
+
+The practical conclusion is clear: \textbf{with this dataset size, the default
+threshold of 0.5 is more robust than any data-driven alternative}. Threshold
+calibration becomes worthwhile only when the calibration set is large enough to
+produce a smooth, representative score distribution...a condition this dataset
+does not meet.
+
+% ── 6. Multi-class probe reinterpreted ───────────────────────────────────────
+\subsection{Multi-class Accuracy Reinterpreted}
+
+At first glance, the multi-class BiGRU accuracy of $0.404 \pm 0.057$ appears
+lower than the binary LOTO ADR of 0.676, suggesting the multi-class model
+performs worse.
+This comparison is misleading because the two tasks differ fundamentally.
+
+In binary LOTO, the model answers a yes/no question for one device against
+8 rogues, with a balanced or threshold-corrected decision boundary.
+In multi-class, the model must identify the correct one among 12 devices.
+The appropriate reference is not 0.5 (binary chance) but $1/12 \approx 0.083$
+(multi-class chance).
+Measured as relative improvement over the random baseline:
+\begin{align}
+  \text{Binary LOTO gain} &= \frac{\bigruLOTOadrMean - 0.500}{0.500} = \binaryLOTORelGain\%,\\
+  \text{Multi-class gain} &= \frac{\mcAccuracy - \mcRandomBaseline}{\mcRandomBaseline} = \mcRelGain\%.
+\end{align}
+By this normalised measure, the multi-class model demonstrates \emph{more}
+discriminative power, not less.
+
+
+% ── 8. Representational limits ───────────────────────────────────────────────
+\subsection{Representational Limits of the DGT Approach}
+
+The current pipeline extracts features from a single power-on transient.
+This is a very short observation window ($\approx$500 samples, typically
+a few microseconds at WiFi sampling rates), and the transient is a
+one-time event: once the device is powered on, the fingerprint is no
+longer emitting.
+In real network scenarios, devices remain active for extended periods.
+The transient-only approach would require re-authentication at each
+power-cycle, which limits applicability in continuously running networks.
+
+An alternative that has not been explored here is \emph{steady-state
+fingerprinting}: exploiting clock imperfections, carrier frequency offset,
+or I/Q imbalance from normal data frames.
+Steady-state features can be extracted from any 802.11 packet, enabling
+continuous authentication without requiring special transient events.
+Combining transient and steady-state features would likely improve both
+accuracy and coverage.
+
+Additionally, the DGT matrix of size 150$\times$150 is large relative to
+the information it encodes per transient.
+Much of the matrix may be occupied by noise or uninformative regions.
+An attention mechanism (Transformer self-attention on the row sequence, or
+a spatial attention map over the 2D matrix) could learn to focus on the
+discriminative regions automatically, rather than requiring the entire
+matrix to be processed at equal cost.
+
+% ── 9. Missing experiments and open questions ─────────────────────────────────
+\subsection{Missing Experiments and Open Questions}
+
+Several experiments that would substantially strengthen the conclusions
+were not performed, either due to dataset constraints or scope limitations.
+
+\textbf{TF-Aug ablation.}
+As discussed above, the contribution of time-frequency masking augmentation to BiGRU performance
+is unknown because no BiGRU-without-TF-Aug baseline was recorded.
+
+\textbf{2D convolutional baseline.}
+The GRU/BiGRU models impose a sequential scan over a 2D DGT matrix.
+A CNN applied to the same matrix as a 2D image
+would test whether the performance floor is architectural (sequential
+models are wrong for this data) or purely dataset-size related.
+
+\textbf{Adversarial evaluation.}
+The original goal of the project was adversarial robustness evaluation.
+Now that a baseline exists, there could be a tractable attack direction.
+
+\textbf{Larger dataset evaluation.}
+The most direct path to operational ADR is more data. This projection is speculative but motivates a data collection campaign as the first step toward a practical PLA system.
+
+\subsubsection*{Which approach is more appropriate for this task?}
+
+Neither approach is clearly superior given the current dataset size.
+The SVM is more data-efficient and produces stable, reproducible results
+because it does not have random weight initialisation.
+However, its linear decision boundary in a fixed feature space is a
+fundamental capacity limit that cannot be overcome by adding more data.
+
+Deep learning has no such architectural ceiling: given enough data,
+deeper or more complex architectures can fit arbitrarily complex decision
+boundaries.
+The multi-class probe already shows that the BiGRU, given access to 25$\times$
+more samples (1340 vs.\ 52), achieves a relative improvement over random
+chance that is $11\times$ larger than the binary SVM.
+This strongly suggests that deep learning is the right long-term direction,
+but that the current dataset does not yet have enough examples to let deep
+models demonstrate their advantage.

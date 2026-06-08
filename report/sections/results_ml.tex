@@ -1,0 +1,14 @@
+Fig.~\ref{fig:bias_progression} shows the ADR progression across the four
+SVM pipeline variants for trial\_1. The original biased pipeline reports
+near-perfect ADR, while each successive revision reduces performance toward
+the final level. The revised baseline (Fix~1+2+3 with balanced weights
+on windowed data) yields ADR~$\approx 0.574$ for trial\_1.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig_bias_progression}
+  \caption{SVM ADR across pipeline variants (trial\_1). Each revision removes one source of optimistic bias. The revised pipeline (Fix~1+2+3 + balanced, windowed) represents the honest ML baseline.
+  The rightmost column shows the effect of windowed augmentation on the revised SVM pipeline. Group-aware cross-validation ensures no window-level leakage.}
+  \label{fig:bias_progression_app}
+\end{figure}
+The revised SVM results confirm that the signal contains device-discriminating information --- all devices achieve ADR above the chance level of 0.5 --- but the reported performance is far lower than the original inflated figures suggested.

@@ -1,0 +1,42 @@
+Physical Layer Authentication (PLA) leverages the unintentional hardware
+imperfections present in every radio transmitter to produce a
+device-specific \emph{RF fingerprint} that is independent of the transmitted
+data and difficult to forge. Unlike cryptographic authentication, PLA operates
+at the signal level and requires no pre-shared secrets, making it an attractive
+complement to higher-layer security mechanisms in resource-constrained IoT
+deployments.
+
+\subsection*{IQ Signal Primer}
+A radio transmitter produces a bandpass signal that can be decomposed into two
+orthogonal components: the \emph{in-phase} (I) and \emph{quadrature} (Q) channels.
+Together they form a complex baseband representation $s(t) = I(t) + jQ(t)$, which
+captures both the amplitude and instantaneous phase of the signal without loss of
+information. Software-defined radios sample this complex signal directly at a fixed
+rate (20\,MHz in this work), producing a sequence of complex64 IQ samples.
+
+The \emph{power-on transient} — the brief burst emitted by a device as it starts
+transmitting — is of particular interest for RF fingerprinting: hardware imperfections
+such as carrier frequency offset (CFO) and DC offset (DCO) imprint a device-specific
+signature on the IQ envelope during this transient. This signature is consistent across
+transmissions from the same device, making it a reliable basis for authentication.
+
+\subsection*{Original Research Direction}
+This project initially aimed to substitute the original ML pipeline with a DL one and then
+evaluate the adversarial robustness of the new PLA system: specifically, by implementing a white-box gradient attack on the trained classifiers and a black-box boundary one to assess how easily an adversary could craft RF signals that evade detection.
+
+A structural obstacle motivated a change of direction: an adversarial analysis presupposes a reliable baseline, attacking a classifier whose honest accuracy is already near chance produces uninterpretable results, since there is no meaningful robustness to undermine.
+
+\subsection*{Revised Contribution}
+The revised focus is on establishing a rigorous, reproducible performance baseline for RF fingerprinting on this dataset using both classical and deep learning pipelines. Specifically:
+
+\begin{enumerate}
+  \item Establish a common evaluation ground by identifying and eliminating three differences in the original SVM pipeline that inflate the reported ADR compared to the DL ones, including a data leakage and non-standard cross-validation protocols.
+  \item A complete deep learning pipeline: MLP on feature vectors, unidirectional GRU and Bidirectional GRU on raw DGT matrices. Each evaluated under the same protocol across five random seeds and with leave-one-transient-out cross-validation.
+  \item A multi-class probe demonstrating that a single BiGRU trained on all 12 devices simultaneously outperforms per-device binary classifiers, pointing at a dataset size constraint rather than a model architecture one.
+  \item A data-efficiency result showing that sliding-window augmentation over the full transient duration is a viable strategy for training DL models with fewer recordings. The original pipeline consumed only the first 299 IQ samples of each transient; we show that device-discriminating hardware imperfections (CFO, DCO) persist throughout the burst, so any 300-sample window yields a valid fingerprint. Extracting 10 sub-sequences per transient grows the training set 10$\times$ (134 $\to$ 1340 samples) without additional recordings, making DL training feasible on a dataset that would otherwise be too small.
+\end{enumerate}
+
+Taken together, these results confirm that RF transient emissions carry
+sufficient device-discriminating information to support PLA above chance,
+while providing a reproducible baseline from which future work on larger datasets,
+adversarial evaluation, and system-level aggregation strategies can build.

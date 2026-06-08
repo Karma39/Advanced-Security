@@ -1,0 +1,69 @@
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.dylib
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.conda/
+
+# ── Dataset — raw .bin files (~1.6 GB), not versioned ────────────────────────
+# Reproducible: provided separately (see README for data download instructions)
+original_dataset/
+
+# ── Processed data caches — reproducible by running 00_setup.ipynb ───────────
+processed_data/
+
+# ── Model checkpoints — reproducible by running notebooks 02 and 04 ──────────
+binary_pla/results/
+*.pt
+*.pth
+*.ckpt
+
+# ── LaTeX ─────────────────────────────────────────────────────────────────────
+# Compiled PDF is not tracked; figures (report/figures/*.pdf) ARE tracked
+# since they are the visual outputs of the experiments.
+report/*.aux
+report/*.bbl
+report/*.bcf
+report/*.blg
+report/*.fdb_latexmk
+report/*.fls
+report/*.log
+report/*.out
+report/*.run.xml
+report/*.synctex.gz
+report/*.toc
+report/*.nav
+report/*.snm
+report/*.vrb
+
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

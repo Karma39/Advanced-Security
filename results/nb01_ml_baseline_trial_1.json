@@ -1,0 +1,204 @@
+{
+  "meta": {
+    "notebook": "nb01_ml_baseline",
+    "trial": "trial_1",
+    "timestamp": "2026-06-04T10:07:59.874656+00:00",
+    "git_hash": "75dff0b",
+    "k_fixed": 50,
+    "n_splits": 5,
+    "random_state": 42,
+    "trials_run": [
+      "trial_1",
+      "trial_2",
+      "trial_3"
+    ]
+  },
+  "results": {
+    "original": {
+      "device3": {
+        "auth_tvr": 1.0,
+        "rogue_tvr": 0.93,
+        "adr": 0.9650000000000001,
+        "k": 78
+      },
+      "device2": {
+        "auth_tvr": 1.0,
+        "rogue_tvr": 0.94,
+        "adr": 0.97,
+        "k": 21
+      },
+      "device12": {
+        "auth_tvr": 1.0,
+        "rogue_tvr": 0.95,
+        "adr": 0.975,
+        "k": 221
+      },
+      "device9": {
+        "auth_tvr": 1.0,
+        "rogue_tvr": 0.96,
+        "adr": 0.98,
+        "k": 1
+      },
+      "_summary": {
+        "mean_auth_tvr": 1.0,
+        "mean_rogue_tvr": 0.9450000000000001,
+        "mean_adr": 0.9725
+      }
+    },
+    "fix1": {
+      "device3": {
+        "auth_tvr": 0.5,
+        "rogue_tvr": 0.96,
+        "adr": 0.73,
+        "k": 423
+      },
+      "device2": {
+        "auth_tvr": 0.5,
+        "rogue_tvr": 0.95,
+        "adr": 0.725,
+        "k": 142
+      },
+      "device12": {
+        "auth_tvr": 1.0,
+        "rogue_tvr": 0.93,
+        "adr": 0.9650000000000001,
+        "k": 203
+      },
+      "device9": {
+        "auth_tvr": 0.5,
+        "rogue_tvr": 0.95,
+        "adr": 0.725,
+        "k": 150
+      },
+      "_summary": {
+        "mean_auth_tvr": 0.625,
+        "mean_rogue_tvr": 0.9475,
+        "mean_adr": 0.78625
+      }
+    },
+    "fix1_2": {
+      "device3": {
+        "auth_tvr": 0.2,
+        "rogue_tvr": 0.93,
+        "adr": 0.5650000000000001,
+        "k": 178
+      },
+      "device2": {
+        "auth_tvr": 0.16666666666666666,
+        "rogue_tvr": 0.9099999999999999,
+        "adr": 0.5383333333333333,
+        "k": 108
+      },
+      "device12": {
+        "auth_tvr": 0.2,
+        "rogue_tvr": 0.952,
+        "adr": 0.576,
+        "k": 500
+      },
+      "device9": {
+        "auth_tvr": 0.13333333333333333,
+        "rogue_tvr": 0.9399999999999998,
+        "adr": 0.5366666666666666,
+        "k": 20
+      },
+      "_summary": {
+        "mean_auth_tvr": 0.175,
+        "mean_rogue_tvr": 0.9329999999999999,
+        "mean_adr": 0.554
+      }
+    },
+    "fix1_2_3": {
+      "device3": {
+        "auth_tvr": 0.0,
+        "rogue_tvr": 0.9559999999999998,
+        "adr": 0.4779999999999999,
+        "k": 50
+      },
+      "device2": {
+        "auth_tvr": 0.0,
+        "rogue_tvr": 0.898,
+        "adr": 0.449,
+        "k": 50
+      },
+      "device12": {
+        "auth_tvr": 0.0,
+        "rogue_tvr": 0.908,
+        "adr": 0.454,
+        "k": 50
+      },
+      "device9": {
+        "auth_tvr": 0.0,
+        "rogue_tvr": 0.898,
+        "adr": 0.449,
+        "k": 50
+      },
+      "_summary": {
+        "mean_auth_tvr": 0.0,
+        "mean_rogue_tvr": 0.915,
+        "mean_adr": 0.4575
+      }
+    },
+    "fix1_2_3_balanced": {
+      "device3": {
+        "auth_tvr": 0.16666666666666666,
+        "rogue_tvr": 0.618,
+        "adr": 0.3923333333333333,
+        "k": 50
+      },
+      "device2": {
+        "auth_tvr": 0.16666666666666666,
+        "rogue_tvr": 0.682,
+        "adr": 0.42433333333333334,
+        "k": 50
+      },
+      "device12": {
+        "auth_tvr": 0.0,
+        "rogue_tvr": 0.8800000000000001,
+        "adr": 0.44000000000000006,
+        "k": 50
+      },
+      "device9": {
+        "auth_tvr": 0.26666666666666666,
+        "rogue_tvr": 0.58,
+        "adr": 0.42333333333333334,
+        "k": 50
+      },
+      "_summary": {
+        "mean_auth_tvr": 0.15,
+        "mean_rogue_tvr": 0.6900000000000001,
+        "mean_adr": 0.42000000000000004
+      }
+    },
+    "windowed_balanced": {
+      "device3": {
+        "auth_tvr": 0.78,
+        "rogue_tvr": 0.30966292134831463,
+        "adr": 0.5448314606741573,
+        "k": 50
+      },
+      "device2": {
+        "auth_tvr": 0.4616666666666666,
+        "rogue_tvr": 0.717752808988764,
+        "adr": 0.5897097378277153,
+        "k": 50
+      },
+      "device12": {
+        "auth_tvr": 0.45999999999999996,
+        "rogue_tvr": 0.7847191011235954,
+        "adr": 0.6223595505617977,
+        "k": 50
+      },
+      "device9": {
+        "auth_tvr": 0.8833333333333334,
+        "rogue_tvr": 0.19752808988764045,
+        "adr": 0.540430711610487,
+        "k": 50
+      },
+      "_summary": {
+        "mean_auth_tvr": 0.64625,
+        "mean_rogue_tvr": 0.5024157303370786,
+        "mean_adr": 0.5743328651685393
+      }
+    }
+  }
+}

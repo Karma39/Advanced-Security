@@ -1,0 +1,72 @@
+\documentclass{ieeeojies}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Auto-generated numbers from notebooks (run nb03 then nb04 to refresh)
+\InputIfFileExists{results/numbers}{}{}
+
+\begin{document}
+
+\title{RF Fingerprinting for Physical Layer Authentication:\\
+From Machine Learning to Deep Learning}
+
+\author{\uppercase{Matteo Campagnaro 2155351}}
+
+\markboth{Advanced Security --- Project Report}{}
+
+\begin{abstract}
+Physical Layer Authentication (PLA) exploits device-specific hardware imperfections
+embedded in RF transient emissions to authenticate wireless nodes without cryptographic
+overhead. This report investigates the feasibility of PLA on a 12-device dataset using a deep learning pipeline comprising MLP, GRU, and Bidirectional GRU architectures.
+The project is based on a classical machine learning baseline (an SVM pipeline using RF-DNA features) which we rigorously re-evaluate to identify and eliminate three evaluation biases. Under such an evaluation protocol, both ML and DL models achieve an Average Detection Rate (ADR) in the 0.57--0.68 range, confirming that RF transient signals carry device-discriminating information. Sliding-window augmentation is shown to be a viable strategy for training DL models with fewer recordings, and a multi-class probe demonstrates that a single BiGRU trained on all 12 devices simultaneously outperforms per-device binary classifiers, pointing at a dataset size constraint rather than a model architecture one. These results establish a baseline for future work on larger datasets, adversarial evaluation, and system-level aggregation strategies.
+\end{abstract}
+
+\titlepgskip=-15pt
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+\input{sections/introduction}
+
+\section{System Model and Pipeline}
+\label{sec:system}
+\input{sections/system_model}
+
+\section{Results}
+\label{sec:results}
+\input{sections/results_main}
+
+\section{Summary and Contributions}
+\label{sec:contributions}
+\input{sections/contributions}
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{sections/conclusion}
+
+\newpage
+
+\appendix
+
+\section{ML Bias Analysis --- Full Details}
+\label{app:bias}
+\input{sections/results_ml}
+
+\section{Multi-class Feasibility Probe}
+\label{app:multiclass}
+\input{sections/results_multiclass}
+
+\section{Extended Discussion}
+\label{app:discussion}
+\input{sections/discussion}
+
+\EOD
+
+\end{document}
