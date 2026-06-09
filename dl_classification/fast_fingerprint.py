@@ -54,7 +54,10 @@ def _fast_dgt(signal, M=150, KG=150, N=1):
 
 
 def _normalize_gabor(Gmk):
-    """Identical to src/features_generation.normalize_gabor_coefficients()."""
+    """
+    Min-max normalise to [0, 1]. Returns zeros for constant input (mx == mn),
+    guarding the division the original src/features_generation version does not protect.
+    """
     mn, mx = Gmk.min(), Gmk.max()
     if mx == mn:
         return np.zeros_like(Gmk)

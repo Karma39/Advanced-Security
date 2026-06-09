@@ -20,9 +20,7 @@ objective of the SVM generalises well when classes are linearly or
 polynomially separable in the feature space.
 
 \textbf{Why ANOVA.}
-ANOVA F-test feature selection :
-
-(\texttt{SelectKBest(f\_classif, k=k)})
+ANOVA F-test feature selection (\texttt{SelectKBest(f\_classif, k=k)})
 ranks features by their univariate linear correlation with the class label.
 It is computationally cheap (no cross-validation loop required), has a single
 hyperparameter ($k$, the number of features to retain), and is easy to
@@ -145,10 +143,9 @@ discriminative power, not less.
 \subsection{Representational Limits of the DGT Approach}
 
 The current pipeline extracts features from a single power-on transient.
-This is a very short observation window ($\approx$500 samples, typically
-a few microseconds at WiFi sampling rates), and the transient is a
-one-time event: once the device is powered on, the fingerprint is no
-longer emitting.
+This is a one-time event spanning roughly 100\,000 samples ($\approx$5\,ms
+at 20\,MHz): once the power-on transient ends, this fingerprinting opportunity
+is gone until the next power cycle.
 In real network scenarios, devices remain active for extended periods.
 The transient-only approach would require re-authentication at each
 power-cycle, which limits applicability in continuously running networks.

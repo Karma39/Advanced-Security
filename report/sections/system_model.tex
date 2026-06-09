@@ -1,5 +1,5 @@
 \subsection{Dataset}
-The dataset consists of RF transient recordings from 12 commodity IEEE~802.11 devices. Each recording captures the power-on transient of a single device as a 500-sample IQ sequence. Approximately 11--13 raw transients per device are available, yielding roughly \nTransients{} recordings in total. Devices are partitioned into \emph{authorized} and \emph{rogue} sets according to three predefined trial configurations.
+The dataset consists of RF transient recordings from 12 commodity IEEE~802.11 devices captured at 20\,MHz with a software-defined radio. Each recording is a raw IQ capture from which the power-on transient is extracted via threshold-based detection; transients span approximately 100\,000 samples ($\approx$5\,ms). Approximately 11--13 raw transients per device are available, yielding roughly \nTransients{} recordings in total. Devices are partitioned into \emph{authorized} and \emph{rogue} sets according to three predefined trial configurations.
 
 \begin{table}[htbp]
 \centering
@@ -33,7 +33,7 @@ Three architectures are evaluated on the binary classification task.
 \textbf{GRU-DGT.} A \gruNumLayers-layer unidirectional GRU (hidden size \gruHiddenSize) that reads the DGT matrix row-by-row as a sequence of \dgtRows{} time frames, each with \dgtCols{} frequency bins. The final hidden state feeds a linear classifier (\gruParams{} parameters).
 
 \textbf{BiGRU-DGT + TF-Aug.} A \gruNumLayers-layer bidirectional GRU (hidden size \gruHiddenSize{} per direction) that concatenates forward and backward final hidden states before classification (\bigruParams{} parameters). The small dataset and high intra-transient correlation from sliding-window augmentation would cause the BiGRU to overfit rapidly without regularisation. A custom time-frequency masking module counteracts this by randomly zeroing contiguous time rows, frequency columns, and adding Gaussian noise to the DGT matrix during training
-($T_{\max}=\specTmax$, $F_{\max}=\specFmax$, $\sigma=\specNoise$, $p=\specProb$).
+($T_{\max}=\specTmax$, $F_{\max}=\specFmax$, $\sigma=\specNoise$, $p=\specProb$), following the SpecAugment strategy.
 
 All models are trained with AdamW (\trainLR, $\text{wd}=$\trainWD), batch size \trainBatch, and early stopping (patience \trainPatience) on validation loss with best-weight restoration.
 

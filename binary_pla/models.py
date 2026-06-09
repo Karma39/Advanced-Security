@@ -11,6 +11,8 @@ import torch.nn as nn
 
 
 class _MLP(nn.Module):
+    # BatchNorm before each ReLU stabilises training on the highly variable 505-dim FV inputs;
+    # without it, val loss diverges in early epochs on this small dataset.
 
     def __init__(self, input_dim=505, num_classes=2, dropout=0.3):
         super().__init__()
@@ -19,7 +21,7 @@ class _MLP(nn.Module):
             nn.BatchNorm1d(256),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(256, 128),
+            nn.Linear(256, 128),  # 505→256→128: halving at each layer keeps capacity proportional to ~134 training samples
             nn.BatchNorm1d(128),
             nn.ReLU(),
             nn.Dropout(dropout),
@@ -31,6 +33,9 @@ class _MLP(nn.Module):
 
 
 class _GRUNet(nn.Module):
+    # hidden_size=64 chosen to keep ~134 training samples above the ~10× rule of thumb
+    # for parameters (2-layer GRU: ~2×(64²+64×150) ≈ 27k params; MLP has ~175k).
+    # No BatchNorm on the classifier head: GRU hidden states are already well-scaled.
 
     def __init__(self, input_size=150, hidden_size=64, num_layers=2,
                  num_classes=2, dropout=0.3):
@@ -40,7 +45,7 @@ class _GRUNet(nn.Module):
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
-            dropout=dropout if num_layers > 1 else 0.0,
+            dropout=dropout if num_layers > 1 else 0.0,  # inter-layer dropout only; single-layer GRU has no inter-layer
         )
         self.classifier = nn.Sequential(
             nn.Dropout(dropout),
@@ -97,4 +102,5 @@ def build_binary_model(name: str, dropout: float = 0.3, n_classes: int = 2) -> n
 
 
 def count_parameters(model: nn.Module) -> int:
+    """Returns the number of trainable (requires_grad=True) parameters. Frozen layers are excluded."""
     return sum(p.numel() for p in model.parameters() if p.requires_grad)

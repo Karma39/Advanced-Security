@@ -16,7 +16,8 @@ from binary_pla.models import build_binary_model, count_parameters
 from binary_pla.config import LR, WEIGHT_DECAY, DROPOUT
 
 _HERE     = os.path.dirname(os.path.abspath(__file__))
-_CKPT_DIR = os.path.join(_HERE, "results", "checkpoints")
+_ROOT     = os.path.dirname(_HERE)
+_CKPT_DIR = os.path.join(_ROOT, "results", "checkpoints")
 
 
 def _ckpt_path(trial_name, model_name, device_name, use_windowed):
@@ -43,7 +44,7 @@ class _EarlyStopping:
         self.best_state = None
 
     def step(self, val_loss, model):
-        if val_loss < self.best - 1e-4:
+        if val_loss < self.best - 1e-4:  # require >1e-4 improvement to reset counter (ignores noise-level fluctuations)
             self.best    = val_loss
             self.counter = 0
             self.best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
