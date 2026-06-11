@@ -2,7 +2,7 @@
 
 # `src/` — Original RF-DNA Preprocessing Pipeline
 
-> **Attribution:** This module is the original work of the project supervisor. It is included here unmodified and serves as the reference baseline that this project audits.
+> **Attribution:** This module is the original work of Ildi Alla, Selma Yahia, Valeria Loscri, and Hossien Eldeeb, published as: *"Robust Device Authentication in Multi-Node Networks: ML-Assisted Hybrid PLA Exploiting Hardware Impairments"*, ACSAC 2024. It is included here unmodified and serves as the reference baseline. Original code: [github.com/PLA-AP/PLA](https://github.com/PLA-AP/PLA)
 
 ---
 
@@ -47,7 +47,7 @@ Dimensionality reduction and feature selection methods applied before training t
 - **RFE** — Recursive Feature Elimination using a linear SVM as the estimator.
 - **PCA** — principal component analysis for unsupervised dimensionality reduction.
 
-> **Evaluation note:** In the original pipeline, ANOVA selection was fitted on the full dataset before cross-validation splits, introducing data leakage. This is Bias #1 documented in [`notebooks/01_ml_baseline.ipynb`](../notebooks/README.md).
+> **Evaluation note:** In the original pipeline, ANOVA selection is fitted on the full dataset before cross-validation splits. This is Protocol Variant A documented in [`notebooks/01_ml_baseline.ipynb`](../notebooks/README.md).
 
 ### `evaluation.py`
 Computes TVR, FDR, and the closeness score for a trained binary classifier. Also identifies which samples were misclassified and which physical device they belonged to.
@@ -68,4 +68,4 @@ original_dataset/  →  preprocessing.py  →  features_generation.py  →  505-
                                                                          dl_classification/ (MLP-FV cache)
 ```
 
-The evaluation biases in this pipeline are documented and corrected in [`notebooks/01_ml_baseline.ipynb`](../notebooks/README.md). The DL alternatives that bypass the feature-selection step are in [`binary_pla/`](../binary_pla/README.md).
+The evaluation protocol variants for this pipeline are documented in [`notebooks/01_ml_baseline.ipynb`](../notebooks/README.md). The DL alternatives that bypass the feature-selection step are in [`binary_pla/`](../binary_pla/README.md).

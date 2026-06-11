@@ -60,7 +60,7 @@ original_dataset/   →   dgt_data_loader.py (DGT computation)
                                 │
                     binary_pla/data_loader.py (train/val/test split)
                                 │
-                    GRU-DGT / BiGRU+SpecAug (in notebooks/02_dl_honest.ipynb)
+                    GRU-DGT / BiGRU+SpecAug (in notebooks/02_dl_baseline.ipynb)
 ```
 
 The DL training pipeline that consumes these caches is in [`binary_pla/`](../binary_pla/README.md). Caches are built by running [`notebooks/00_setup.ipynb`](../notebooks/README.md).

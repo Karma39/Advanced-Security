@@ -64,7 +64,7 @@ original_dataset/   →   data_loader_bridge.py + fast_fingerprint.py
                                 │
                     binary_pla/data_loader.py (train/val/test split)
                                 │
-                    MLP-FV (in notebooks/02_dl_honest.ipynb)
+                    MLP-FV (in notebooks/02_dl_baseline.ipynb)
 ```
 
 The DGT matrix pipeline (without feature extraction) is in [`raw_dgt/`](../raw_dgt/README.md).

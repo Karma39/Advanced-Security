@@ -62,6 +62,9 @@ report/*.nav
 report/*.snm
 report/*.vrb
 
+# ── Private notes ─────────────────────────────────────────────────────────────
+PROFESSOR_NOTES.md
+
 # ── Editor / IDE ──────────────────────────────────────────────────────────────
 .vscode/
 .idea/

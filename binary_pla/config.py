@@ -34,7 +34,7 @@ TRIAL        = "trial_1"
 TRIALS_TO_RUN = ["trial_1", "trial_2", "trial_3"]
 
 NB01_ID = "nb01_ml_baseline"
-NB02_ID = "nb02_dl_honest"
+NB02_ID = "nb02_dl_baseline"
 NB04_ID = "nb04_multiclass"
 
 SEEDS        = [42, 7, 13, 99, 2024]

@@ -1,7 +1,7 @@
 \subsection*{What We Found}
 \begin{itemize}
-  \item The original RF-DNA SVM pipeline contains three independent evaluation biases that collectively inflate reported ADR from $\svmOrigADR \to \svmADR$ (approximately 40 percentage points).
-  \item Under a fair evaluation protocol, SVM and all three DL models
+  \item The original RF-DNA pipeline~\cite{alla2024pla} reports ADR $\approx \rnfOrigADR$ under the paper protocol. When the evaluation is aligned to the same group-aware, fold-aware protocol used for the DL models, the RnF+ANOVA pipeline achieves ADR $\approx \rnfADR$ (approximately 40 percentage points lower), isolating three protocol differences between the two evaluations.
+  \item Under this common evaluation protocol, the RnF model and all three DL models
         (MLP-FV, GRU-DGT, BiGRU+TF-Aug) achieve statistically equivalent ADR in the 0.57--0.68 range. No architecture is a clear winner.
   \item With only five seeds the BiGRU shows ADR variance of $\pm 0.131$;
         LOTO cross-validation provides more stable per-device estimates
@@ -13,8 +13,8 @@
 
 \subsection*{Contributions}
 \begin{itemize}
-  \item \textbf{Revised baseline.} Identified, isolated, and quantified three evaluation assumptions in the original RF-DNA pipeline, providing reproducible corrections with per-bias ADR measurements.
-  \item \textbf{Honest DL baseline.} First evaluation of MLP, GRU, and BiGRU architectures on this dataset under a strictly group-aware, transient-aware protocol across five seeds and LOTO.
+  \item \textbf{Protocol alignment.} Identified and isolated three methodological differences between the original RF-DNA pipeline and the DL evaluation, providing per-difference ADR measurements to quantify their individual impact.
+  \item \textbf{Rigorous DL baseline.} First evaluation of MLP, GRU, and BiGRU architectures on this dataset under a strictly group-aware, transient-aware protocol across five seeds and LOTO.
   \item \textbf{Data-efficiency result.} Demonstrated that sliding-window augmentation enables DL training with 10$\times$ fewer recordings by exploiting the full transient duration, confirming that device-discriminating hardware imperfections persist well beyond the initial signal segment used by the original pipeline.
   \item \textbf{Multi-class probe.} Showed that a single BiGRU trained on all 12 devices reaches \mcAccuracy{} accuracy (vs.\ \mcRandomBaseline{} random), confirming that discriminative information exists across all devices and that architecture is not the limiting factor while dataset size is (Appendix~\ref{app:multiclass}).
 \end{itemize}
@@ -30,6 +30,6 @@
         reduce the high seed-to-seed variance observed in this work and yield
         more stable authentication decisions without architectural changes.
   \item Conduct adversarial robustness evaluation (white-box and black-box
-        attacks on raw IQ waveforms), now that an honest unattacked baseline
+        attacks on raw IQ waveforms), now that a rigorous unattacked baseline
         is established.
 \end{itemize}

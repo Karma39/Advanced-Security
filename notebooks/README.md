@@ -11,8 +11,8 @@ These notebooks implement the full experimental workflow, from building data cac
 | # | Notebook | What it does | Outputs |
 |---|----------|-------------|---------|
 | 0 | `00_setup.ipynb` | Build all HDF5 caches from raw data | `processed_data/*.h5` (4 files) |
-| 1 | `01_ml_baseline.ipynb` | Replicate SVM pipeline + expose 3 biases | `results/nb01_ml_baseline_trial_*.json` |
-| 2 | `02_dl_honest.ipynb` | Honest DL evaluation, 5 seeds | `results/nb02_dl_honest_trial_*.json` |
+| 1 | `01_ml_baseline.ipynb` | RnF+ANOVA baseline, three protocol variants | `results/nb01_ml_baseline_trial_*.json` |
+| 2 | `02_dl_baseline.ipynb` | DL baseline, 5 seeds, group-aware protocol | `results/nb02_dl_baseline_trial_*.json` |
 | 3 | `03_comparison.ipynb` | ML vs. DL side-by-side | Figures (displayed inline) |
 | 4 | `04_multiclass_classification.ipynb` | 12-class device identification | `results/nb04_multiclass_all_devices.json` |
 
@@ -34,28 +34,29 @@ All subsequent notebooks load from these caches — never from raw `.bin` files 
 
 ---
 
-### `01_ml_baseline.ipynb` — SVM Bias Audit
-Replicates the original `RF_Fingerprint.py` pipeline and progressively corrects three evaluation biases. The goal is to understand what the original ADR of ~0.97 actually measures, and what a fair ADR estimate looks like.
+### `01_ml_baseline.ipynb` — RnF+ANOVA Baseline
 
-**Bias 1 — ANOVA leakage:** In the original pipeline, feature selection (ANOVA top-k) is fitted on the full dataset before the cross-validation loop, meaning the model indirectly "sees" all test samples when selecting features. Fix: fit ANOVA inside each fold, on training data only.
+Replicates the original `RF_Fingerprint.py` pipeline (RnF+ANOVA) and progressively aligns the evaluation protocol to match the DL pipeline. Three protocol differences are identified and applied one at a time to quantify their individual impact on reported ADR.
 
-**Bias 2 — Lucky fold selection:** The original pipeline reports the best fold (maximum ADR) rather than the average. Fix: average ADR across all folds.
+**Variant A — Fold-aware feature selection:** ANOVA top-k is fitted on training data only within each fold, rather than on the full dataset before splitting.
 
-**Bias 3 — Test-set k sweep:** The number of features k is chosen by sweeping over values and picking the one that maximizes test performance. Fix: fix k=50 (chosen on validation, never touching test).
+**Variant B — Full-fold averaging:** ADR is averaged across all CV folds rather than reporting only the best fold.
 
-| State | ADR |
-|-------|-----|
-| Original (all biases) | **0.973** |
-| Fix 1 only | 0.786 |
-| Fix 1 + 2 | 0.554 |
-| Fix 1 + 2 + 3 | **0.458** |
+**Variant C — Fixed k:** The number of features k is fixed a priori (k=50) rather than swept over the test set.
+
+| Protocol | ADR |
+|----------|-----|
+| Original (paper protocol) | **0.973** |
+| Variant A | 0.786 |
+| Variant A+B | 0.554 |
+| Variant A+B+C | **0.458** |
 
 Results are saved per trial and loaded by `03_comparison.ipynb`.
 
 ---
 
-### `02_dl_honest.ipynb` — Honest DL Evaluation
-Trains three deep learning models using a strict three-way split (70% train / 15% val / 15% test) with no leakage between splits. Each model is trained over 5 random seeds to quantify uncertainty.
+### `02_dl_baseline.ipynb` — Deep Learning Baseline
+Trains three deep learning models under a group-aware three-way split (70% train / 15% val / 15% test) where all windows from the same transient stay in the same partition. Each model is trained over 5 random seeds to quantify uncertainty.
 
 **Models evaluated:**
 - **MLP-FV** — 3-layer MLP on 505-dim feature vectors (same features as the SVM).
@@ -75,7 +76,7 @@ All three are statistically indistinguishable (Wilcoxon p > 0.0625 for all pairs
 ---
 
 ### `03_comparison.ipynb` — ML vs. DL Comparison
-Loads the saved results from notebooks 01 and 02 and displays them side by side. Examines whether the DL models offer any advantage over the corrected SVM baseline (ADR = 0.458), and discusses whether the gap is architectural or a consequence of the small dataset size (134 transients total).
+Loads the saved results from notebooks 01 and 02 and displays them side by side. Examines whether the DL models offer any advantage over the RnF+ANOVA baseline under the aligned protocol (ADR = 0.458), and discusses whether the gap is architectural or a consequence of the small dataset size (134 transients total).
 
 ---
 

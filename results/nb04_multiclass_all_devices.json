@@ -2,8 +2,8 @@
   "meta": {
     "notebook": "nb04_multiclass",
     "trial": "all_devices",
-    "timestamp": "2026-06-09T15:12:53.890116+00:00",
-    "git_hash": "9ce36f6",
+    "timestamp": "2026-06-11T09:31:50.661643+00:00",
+    "git_hash": "2ef0b50",
     "n_classes": 12,
     "seeds": [
       42,

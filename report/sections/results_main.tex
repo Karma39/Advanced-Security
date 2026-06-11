@@ -1,11 +1,10 @@
-\subsection{ML Revised Evaluation}
-Three evaluation assumptions in the original ML pipeline inflate the reported ADR from $\approx\svmADR$ to near-perfect $\svmOrigADR$ when all corrections are removed
-(Fig.~\ref{fig:bias_progression}). The corrected SVM (Fix~1+2+3 with balanced class weights) forms the revised ML baseline for all subsequent comparisons. Full methodology and per-revision breakdown are given in Appendix.
+\subsection{RnF+ANOVA Evaluation}
+Three protocol differences between the original ML pipeline and the DL evaluation are identified and aligned one at a time. The fully aligned RnF+ANOVA pipeline forms the ML baseline for all subsequent comparisons. Full per-variant breakdown is given in Appendix~\ref{app:rnf_variants}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\columnwidth]{figures/fig_bias_progression}
-  \caption{SVM ADR across pipeline variants (trial\_1). Each correction removes one source of optimistic assumption; the rightmost bar is the revised baseline.}
+  \caption{RnF+ANOVA ADR across protocol variants (trial\_1); the rightmost bar is the aligned baseline.}
   \label{fig:bias_progression}
 \end{figure}
 
@@ -72,9 +71,7 @@ device12 & \bigruLOTOadrTwelve & \lotoEERTwelve \\
 
 \subsection{ML vs.\ DL Comparison}
 
-Fig.~\ref{fig:ml_vs_dl_loto} places the revised SVM alongside all three DL models
-evaluated under LOTO cross-validation. No pipeline has a clear advantage: all models
-cluster in a \svmADR--\bigruLOTOadrMean{} ADR band with overlapping uncertainty. The performance gap
+Fig.~\ref{fig:ml_vs_dl_loto} places the revised RnF alongside all three DL models evaluated under LOTO cross-validation. No pipeline has a clear advantage: all models cluster in a \rnfADR--\bigruLOTOadrMean{} ADR band with overlapping uncertainty. The performance gap
 between the original and revised pipelines is entirely attributable to evaluation
 methodology.
 
@@ -82,7 +79,7 @@ methodology.
   \centering
   \includegraphics[width=\columnwidth]{figures/fig_ml_vs_dl_loto}
   \caption{ML vs.\ DL (LOTO): ADR, Auth TVR, and Rogue TVR (trial\_1).
-           SVM error bar is zero (single deterministic run);
+           RnF error bar is zero (single deterministic run);
            DL bars are $\pm$1 std across authorized devices (LOTO).}
   \label{fig:ml_vs_dl_loto}
 \end{figure}

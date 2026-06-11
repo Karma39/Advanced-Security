@@ -9,16 +9,15 @@ deployments.
 The \emph{power-on transient}, the burst emitted by a device as it starts
 transmitting, is of particular interest for RF fingerprinting: hardware imperfections such as carrier frequency offset (CFO) and DC offset (DCO) imprint a device-specific signature on the IQ envelope during this transient. This signature is consistent across transmissions from the same device and is captured as a sequence of complex baseband (IQ) samples recorded by a software-defined radio at 20\,MHz.
 
-\subsection*{Original Research Direction}
-This project initially aimed to substitute the original ML pipeline with a DL one and then evaluate the adversarial robustness of the new PLA system: specifically, by implementing a white-box gradient attack on the trained classifiers and a black-box boundary one to assess how easily an adversary could craft RF signals that evade detection.
+\subsection*{Research Direction}
+This project aim to substitute the original ML pipeline~\cite{alla2024pla} with a DL and test the adversarial robustness of the new PLA system based on DL. The trained DL classifiers achieve mean ADR of \mlpADR{} (MLP-FV), \gruADR{} (GRU-DGT), and \bigruADR{} (BiGRU), with seed-to-seed variance as high as \bigruSeedADRRange{} for the BiGRU (range \bigruSeedADRMin{}--\bigruSeedADRMax{} across five seeds). 
+Adversarial analysis on a DL model operating this close to the chance level would produce uninterpretable results, since there is no stable decision boundary to probe. Establishing a rigorous, reproducible baseline therefore became the primary objective, with adversarial evaluation deferred to future work once a more reliable classifier is available.
 
-A structural obstacle motivated a change of direction: an adversarial analysis presupposes a reliable baseline, attacking a classifier whose honest accuracy is already near chance produces uninterpretable results, since there is no meaningful robustness to undermine.
-
-\subsection*{Revised Contribution}
-The revised focus is on establishing a rigorous, reproducible performance baseline for RF fingerprinting on this dataset using both classical and deep learning pipelines. Specifically:
+\subsection*{Contribution}
+The focus is on establishing a rigorous, reproducible performance baseline for RF fingerprinting on this dataset using both classical and deep learning pipelines. Specifically:
 
 \begin{enumerate}
-  \item A common evaluation ground established by identifying and eliminating three methodological differences between the SVM and DL pipelines, including a data leakage and non-standard cross-validation protocols, to enable a fair comparison.
+  \item A common evaluation ground established by identifying and eliminating three methodological differences between the RnF and DL pipelines.
   \item A complete deep learning pipeline — MLP on feature vectors, unidirectional GRU and Bidirectional GRU on raw DGT matrices — each evaluated under the same protocol across five random seeds and with leave-one-transient-out cross-validation.
   \item A multi-class probe demonstrating that a single BiGRU trained on all 12 devices simultaneously outperforms per-device binary classifiers, pointing at a dataset size constraint rather than a model architecture one.
   \item A data-efficiency result showing that sliding-window augmentation over the full transient duration is a viable strategy for training DL models with fewer recordings. Device-discriminating hardware imperfections (CFO, DCO) persist throughout the burst, so any 300-sample window yields a valid fingerprint. Extracting 10 sub-sequences per transient grows the training set 10$\times$ (134 $\to$ 1340 samples) without additional recordings, making DL training feasible on a dataset that would otherwise be too small.

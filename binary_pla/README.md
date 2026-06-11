@@ -62,9 +62,9 @@ Dropout → Linear(128→2)
 All three are instantiated via `build_binary_model("mlp_fv" | "gru_dgt" | "bigru_dgt")`.
 
 ### `data_loader.py`
-Loads a device's samples from HDF5, then performs a **transient-aware three-way split** (70% train / 15% val / 15% test). "Transient-aware" means all augmented windows derived from the same original transient are kept together — they all go to the same partition. This prevents the common leakage bug where windows of the same transient end up in both train and test.
+Loads a device's samples from HDF5, then performs a **transient-aware three-way split** (70% train / 15% val / 15% test). "Transient-aware" means all augmented windows derived from the same original transient are kept together — they all go to the same partition. This ensures windows from the same transient are never split across train and test partitions.
 
-Normalization (z-score) is fitted on the training split only and applied to val and test, preventing any leakage from future data.
+Normalization (z-score) is fitted on the training split only and applied to val and test, preventing any statistical information from future data from influencing the model.
 
 ### `trainer.py`
 Per-device binary training loop. For each (device, seed, model_type) combination:
@@ -82,7 +82,7 @@ Per-device binary training loop. For each (device, seed, model_type) combination
 
 After all folds, the optimal decision threshold is selected by maximizing ADR on the pooled validation scores. This threshold is then applied to the test scores to produce the final `auth_tvr` and `rogue_tvr`.
 
-LOTO is an alternative to the held-out test set used in `notebooks/02_dl_honest.ipynb`. It uses all available data (important given the small dataset) at the cost of higher variance per fold.
+LOTO is an alternative to the held-out test set used in `notebooks/02_dl_baseline.ipynb`. It uses all available data (important given the small dataset) at the cost of higher variance per fold.
 
 ### `results_io.py`
 Saves and loads experiment results as JSON files in `results/`. Each file is wrapped in a metadata envelope recording: notebook ID, trial name, timestamp, and git hash — enabling reproducibility and preventing accidental overwriting of results from different runs.
@@ -100,5 +100,5 @@ dgt_windowed.h5   →  data_loader.py  →  trainer.py  →  GRU / BiGRU results
                                      results_io.py → results/nb02_*.json
 ```
 
-Used by: [`notebooks/02_dl_honest.ipynb`](../notebooks/README.md) (primary), [`notebooks/04_multiclass_classification.ipynb`](../notebooks/README.md).  
+Used by: [`notebooks/02_dl_baseline.ipynb`](../notebooks/README.md) (primary), [`notebooks/04_multiclass_classification.ipynb`](../notebooks/README.md).  
 Depends on caches from: [`dl_classification/`](../dl_classification/README.md) and [`raw_dgt/`](../raw_dgt/README.md).

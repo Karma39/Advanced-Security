@@ -4,30 +4,37 @@
 
 ---
 
-Physical Layer Authentication (PLA) identifies wireless devices by their **RF hardware fingerprint** — a subtle, repeatable signature caused by manufacturing imperfections in the transmitter circuitry. This repository audits an existing SVM-based PLA pipeline for evaluation biases, then builds and honestly evaluates three deep learning classifiers as alternatives.
+Physical Layer Authentication (PLA) identifies wireless devices by their **RF hardware fingerprint** — a subtle, repeatable signature caused by manufacturing imperfections in the transmitter circuitry. This repository re-evaluates an existing ML-based PLA pipeline under a group-aware protocol, then builds and evaluates three deep learning classifiers as alternatives.
 
 ---
 
 ## Prior Work & Attribution
 
-The original pipeline — `RF_Fingerprint.py` and the `src/` module — is the work of the project supervisor. It implements an SVM-based binary PLA classifier using **RF-DNA fingerprinting**: each device's power-on transient is converted into a 505-dimensional feature vector via the Discrete Gabor Transform (DGT), and a Support Vector Machine is trained per authorized device to distinguish it from all others.
+The original pipeline — `RF_Fingerprint.py` and the `src/` module — is the work of the following authors and must be cited as:
 
-This project does **not** modify `RF_Fingerprint.py` or `src/`. It uses them as an unmodified reference baseline, audits their evaluation methodology, and proposes deep learning alternatives. See [`src/README.md`](src/README.md) for a detailed description of the original pipeline and the RF-DNA fingerprinting technique.
+> Ildi Alla, Selma Yahia, Valeria Loscri, Hossien Eldeeb.
+> **"Robust Device Authentication in Multi-Node Networks: ML-Assisted Hybrid PLA Exploiting Hardware Impairments."**
+> *Annual Computer Security Applications Conference (ACSAC)*, December 2024, Waikiki, Hawaii, USA.
+> HAL: [hal-04727491](https://hal.science/hal-04727491v1) — Code: [github.com/PLA-AP/PLA](https://github.com/PLA-AP/PLA)
+
+The pipeline implements an RF-DNA fingerprinting scheme: each device's power-on transient is converted into a 505-dimensional feature vector via the Discrete Gabor Transform (DGT), and a machine learning model is trained per authorized device to distinguish it from all others.
+
+This project does **not** modify `RF_Fingerprint.py` or `src/`. It uses them as an unmodified reference and proposes deep learning alternatives evaluated under a group-aware protocol. See [`src/README.md`](src/README.md) for a detailed description of the original pipeline.
 
 ---
 
 ## Key Findings
 
-### SVM pipeline — three evaluation revision
+### RnF+ANOVA pipeline — protocol variants
 
-The original pipeline reports ADR ≈ 0.97. Three methodological assumption inflate this number compared to the DL one. Removing them progressively reveals the true performance:
+The original pipeline reports ADR ≈ 0.97. Three protocol differences with respect to the DL evaluation are applied progressively:
 
-| State | ADR | assumption removed |
-|-------|-----|-------------|
-| Original (all assumption active) | **0.973** | — |
-| Fix 1 | 0.786 | ANOVA fitted inside CV fold (no leakage) |
-| Fix 1 + 2 | 0.554 | Average all folds instead of best fold |
-| Fix 1 + 2 + 3 | **0.458** | Fixed feature count k, no test-set sweep |
+| Protocol | ADR | Change applied |
+|----------|-----|----------------|
+| Original (paper protocol) | **0.973** | — |
+| Variant A | 0.786 | ANOVA fitted inside each CV fold |
+| Variant A+B | 0.554 | All folds averaged |
+| Variant A+B+C | **0.458** | Fixed feature count k |
 
 ### DL pipeline — evaluation (5 seeds, held-out test set)
 
@@ -63,8 +70,8 @@ jupyter notebook notebooks/00_setup.ipynb
 
 # Step 2–5: run experiments in order
 jupyter notebook notebooks/
-# → 01_ml_baseline.ipynb    SVM audit
-# → 02_dl_honest.ipynb      DL training (5 seeds, ~10 min)
+# → 01_ml_baseline.ipynb    RnF+ANOVA baseline
+# → 02_dl_baseline.ipynb      DL training (5 seeds, ~10 min)
 # → 03_comparison.ipynb     results comparison
 # → 04_multiclass_classification.ipynb   (optional)
 ```
@@ -76,13 +83,13 @@ jupyter notebook notebooks/
 ```
 pla-binary-analysis/
 │
-├── RF_Fingerprint.py          Original SVM pipeline (professor's work, unmodified)
+├── RF_Fingerprint.py          Original ML pipeline (Alla et al., ACSAC 2024 — unmodified)
 ├── environment.yml            Conda environment specification
 │
 ├── notebooks/                 ← Experiment notebooks (start here)
 │   └── README.md
 │
-├── src/                       ← Original preprocessing utilities (professor's work)
+├── src/                       ← Original preprocessing utilities (Alla et al., ACSAC 2024)
 │   └── README.md
 │
 ├── dl_classification/         ← Feature-vector (505-dim) cache builder
@@ -114,7 +121,7 @@ Navigate to any module's README for detailed documentation:
 | Module | Description |
 |--------|-------------|
 | [notebooks/](notebooks/README.md) | Experiment workflow — start here |
-| [src/](src/README.md) | Original preprocessing & RF-DNA fingerprinting (professor's baseline) |
+| [src/](src/README.md) | Original preprocessing & RF-DNA fingerprinting (Alla et al., ACSAC 2024) |
 | [dl_classification/](dl_classification/README.md) | Builds 505-dim feature vector HDF5 caches |
 | [raw_dgt/](raw_dgt/README.md) | Builds 150×150 DGT matrix HDF5 caches |
 | [binary_pla/](binary_pla/README.md) | PyTorch models, trainer, data loader, evaluation |
@@ -124,12 +131,12 @@ Navigate to any module's README for detailed documentation:
 | File | Imported by |
 |------|-------------|
 | `binary_pla/config.py` | all 5 notebooks · `data_loader.py` · `loto.py` · `trainer.py` |
-| `binary_pla/data_loader.py` | `02_dl_honest` · `04_multiclass` · `loto.py` |
-| `binary_pla/trainer.py` | `02_dl_honest` · `04_multiclass` · `loto.py` |
+| `binary_pla/data_loader.py` | `02_dl_baseline` · `04_multiclass` · `loto.py` |
+| `binary_pla/trainer.py` | `02_dl_baseline` · `04_multiclass` · `loto.py` |
 | `binary_pla/models.py` | `04_multiclass` · `loto.py` · `trainer.py` |
-| `binary_pla/augmentation.py` | `02_dl_honest` · `04_multiclass` |
-| `binary_pla/loto.py` | `02_dl_honest` |
-| `binary_pla/results_io.py` | `01_ml_baseline` · `02_dl_honest` · `03_comparison` · `04_multiclass` |
+| `binary_pla/augmentation.py` | `02_dl_baseline` · `04_multiclass` |
+| `binary_pla/loto.py` | `02_dl_baseline` |
+| `binary_pla/results_io.py` | `01_ml_baseline` · `02_dl_baseline` · `03_comparison` · `04_multiclass` |
 | `dl_classification/data_loader_bridge.py` | `00_setup` · `dgt_data_loader.py` |
 | `dl_classification/fast_fingerprint.py` | `00_setup` · `data_loader_bridge.py` · `dgt_data_loader.py` |
 | `raw_dgt/dgt_data_loader.py` | `00_setup` |

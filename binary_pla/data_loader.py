@@ -144,7 +144,7 @@ def _split_per_device(y_auth_b, groups_b, authorized_labels, val_frac, test_frac
     )
 
 
-def load_trial_honest(
+def load_trial_data(
     trial_name:   str,
     repr_type:    str   = "fv",
     model_name:   str   = "mlp_fv",
@@ -249,7 +249,7 @@ def load_trial_honest(
 
     n_train_tr = len(np.unique(groups_w[train_win_mask]))
     print(
-        f"[load_trial_honest] {trial_name} | repr={repr_type} | seed={seed}\n"
+        f"[load_trial_data] {trial_name} | repr={repr_type} | seed={seed}\n"
         f"  train: {len(X_tr_w)} windowed samples from {n_train_tr} transients\n"
         f"  val:   {len(X_va)} baseline samples  |  "
         f"test: {len(X_te)} baseline samples  |  "

@@ -1,38 +1,20 @@
 % ── 0. Scope of the revised audit ───────────────────────────────────────────────
-\subsection{Scope of the Revised Audit: Why SVM and ANOVA}
+\subsection{Scope of the Pipeline Evaluation: Why RnF+ANOVA}
 
 The ML analysis in this work is deliberately scoped to the original
-RF-DNA pipeline from \texttt{RF\_Fingerprint.py}: an SVM with polynomial
-kernel preceded by ANOVA-based feature selection (\texttt{SelectKBest} with
+RF-DNA pipeline from \texttt{RF\_Fingerprint.py}: a Random Forest
+(n\_estimators=10, max\_depth=8) preceded by ANOVA-based feature selection (\texttt{SelectKBest} with
 the F-test statistic).
 This is not the only possible ML pipeline for the 505-dimensional feature
-vector. In fact the same code base also implements mutual information, RFE, and PCA as alternative selectors, and other classifiers such as Random Forest or
-$k$-NN could in principle be substituted. But auditing the specific choices
-made in the original work is the prerequisite for any fair comparison.
+vector. In fact the same code base also implements mutual information, RFE, and PCA as alternative selectors, and other classifiers such as SVM or
+$k$-NN could in principle be substituted.
 
-\textbf{Why SVM.}
-An SVM with polynomial kernel is a well-established choice for
-high-dimensional, small-sample classification problems.
-With $\approx$134 samples and 505 features, the dataset is firmly in the
-regime where SVMs with regularisation tend to outperform neural networks:
-there is not enough data to fit a network reliably, but the margin-maximising
-objective of the SVM generalises well when classes are linearly or
-polynomially separable in the feature space.
-
-\textbf{Why ANOVA.}
-ANOVA F-test feature selection (\texttt{SelectKBest(f\_classif, k=k)})
-ranks features by their univariate linear correlation with the class label.
-It is computationally cheap (no cross-validation loop required), has a single
-hyperparameter ($k$, the number of features to retain), and is easy to
-interpret.
-These properties make it a natural choice when the dataset is small and
-compute budget is limited.
 
 \textbf{Time constraints.}
-Extending the revised audit to alternative classifiers and feature selectors
+Extending the evaluation to alternative classifiers and feature selectors
 was outside the scope of this project.
 Each additional pipeline variant requires its own replication, its own
-revision characterisation, and its own corrected baseline.
+characterisation, and its own aligned baseline.
 Given the available time, the decision was to perform a thorough audit of
 the single pipeline that was actually used, rather than a shallow
 survey of many alternatives.
@@ -192,9 +174,9 @@ The most direct path to operational ADR is more data. This projection is specula
 \subsubsection*{Which approach is more appropriate for this task?}
 
 Neither approach is clearly superior given the current dataset size.
-The SVM is more data-efficient and produces stable, reproducible results
+The RnF is more data-efficient and produces stable, reproducible results
 because it does not have random weight initialisation.
-However, its linear decision boundary in a fixed feature space is a
+However, its decision boundary in a fixed feature space is a
 fundamental capacity limit that cannot be overcome by adding more data.
 
 Deep learning has no such architectural ceiling: given enough data,
@@ -202,7 +184,7 @@ deeper or more complex architectures can fit arbitrarily complex decision
 boundaries.
 The multi-class probe already shows that the BiGRU, given access to 25$\times$
 more samples (1340 vs.\ 52), achieves a relative improvement over random
-chance that is $11\times$ larger than the binary SVM.
+chance that is $11\times$ larger than the binary RnF classifier.
 This strongly suggests that deep learning is the right long-term direction,
 but that the current dataset does not yet have enough examples to let deep
 models demonstrate their advantage.
