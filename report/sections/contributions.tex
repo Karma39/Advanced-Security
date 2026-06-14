@@ -1,8 +1,6 @@
 \subsection*{What We Found}
 \begin{itemize}
-  \item The original RF-DNA pipeline~\cite{alla2024pla} reports ADR $\approx \rnfOrigADR$ under the paper protocol. When the evaluation is aligned to the same group-aware, fold-aware protocol used for the DL models, the RnF+ANOVA pipeline achieves ADR $\approx \rnfADR$ (approximately 40 percentage points lower), isolating three protocol differences between the two evaluations.
-  \item Under this common evaluation protocol, the RnF model and all three DL models
-        (MLP-FV, GRU-DGT, BiGRU+TF-Aug) achieve statistically equivalent ADR in the 0.57--0.68 range. No architecture is a clear winner.
+  \item Under a real-world deployment scenario (single fixed split, normalisation fitted on training data only, results averaged across five seeds), all three DL models achieve ADR in the 0.57--0.68 range, above chance but well below operationally useful levels. No architecture is a clear winner.
   \item With only five seeds the BiGRU shows ADR variance of $\pm 0.131$;
         LOTO cross-validation provides more stable per-device estimates
         (mean ADR \bigruLOTOadrMean, mean EER \bigruLOTOeerMean).
@@ -13,8 +11,8 @@
 
 \subsection*{Contributions}
 \begin{itemize}
-  \item \textbf{Protocol alignment.} Identified and isolated three methodological differences between the original RF-DNA pipeline and the DL evaluation, providing per-difference ADR measurements to quantify their individual impact.
-  \item \textbf{Rigorous DL baseline.} First evaluation of MLP, GRU, and BiGRU architectures on this dataset under a strictly group-aware, transient-aware protocol across five seeds and LOTO.
+  \item \textbf{DL evaluation under real-world conditions.} Evaluated MLP, GRU, and BiGRU architectures on this dataset under a group-aware, transient-aware protocol that reflects what a practitioner would encounter when deploying the system: the model is trained once and applied to new transmissions without post-hoc selection.
+  \item \textbf{Uncertainty quantification.} Results are averaged across five random seeds and supplemented with LOTO cross-validation, providing a rigorous estimate of the variance a deployed system would exhibit.
   \item \textbf{Data-efficiency result.} Demonstrated that sliding-window augmentation enables DL training with 10$\times$ fewer recordings by exploiting the full transient duration, confirming that device-discriminating hardware imperfections persist well beyond the initial signal segment used by the original pipeline.
   \item \textbf{Multi-class probe.} Showed that a single BiGRU trained on all 12 devices reaches \mcAccuracy{} accuracy (vs.\ \mcRandomBaseline{} random), confirming that discriminative information exists across all devices and that architecture is not the limiting factor while dataset size is (Appendix~\ref{app:multiclass}).
 \end{itemize}

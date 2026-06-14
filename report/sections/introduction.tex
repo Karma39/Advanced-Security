@@ -14,11 +14,10 @@ This project aim to substitute the original ML pipeline~\cite{alla2024pla} with 
 Adversarial analysis on a DL model operating this close to the chance level would produce uninterpretable results, since there is no stable decision boundary to probe. Establishing a rigorous, reproducible baseline therefore became the primary objective, with adversarial evaluation deferred to future work once a more reliable classifier is available.
 
 \subsection*{Contribution}
-The focus is on establishing a rigorous, reproducible performance baseline for RF fingerprinting on this dataset using both classical and deep learning pipelines. Specifically:
+The focus is on evaluating deep learning alternatives to the original ML pipeline under a real-world deployment scenario: a single fixed train/val/test split (70/15/15), normalisation fitted on training data only, and results averaged across five random seeds to reflect the variance a practitioner would encounter when deploying the system. Specifically:
 
 \begin{enumerate}
-  \item A common evaluation ground established by identifying and eliminating three methodological differences between the RnF and DL pipelines.
-  \item A complete deep learning pipeline — MLP on feature vectors, unidirectional GRU and Bidirectional GRU on raw DGT matrices — each evaluated under the same protocol across five random seeds and with leave-one-transient-out cross-validation.
+  \item A complete deep learning pipeline — MLP on feature vectors, unidirectional GRU and Bidirectional GRU on raw DGT matrices — each evaluated under a group-aware, transient-aware protocol across five random seeds and with leave-one-transient-out cross-validation. This protocol estimates the performance expected in a real deployment, where the model is trained once and applied to new transmissions without post-hoc selection.
   \item A multi-class probe demonstrating that a single BiGRU trained on all 12 devices simultaneously outperforms per-device binary classifiers, pointing at a dataset size constraint rather than a model architecture one.
   \item A data-efficiency result showing that sliding-window augmentation over the full transient duration is a viable strategy for training DL models with fewer recordings. Device-discriminating hardware imperfections (CFO, DCO) persist throughout the burst, so any 300-sample window yields a valid fingerprint. Extracting 10 sub-sequences per transient grows the training set 10$\times$ (134 $\to$ 1340 samples) without additional recordings, making DL training feasible on a dataset that would otherwise be too small.
 \end{enumerate}

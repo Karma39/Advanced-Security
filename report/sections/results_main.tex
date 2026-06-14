@@ -1,10 +1,10 @@
 \subsection{RnF+ANOVA Evaluation}
-Three protocol differences between the original ML pipeline and the DL evaluation are identified and aligned one at a time. The fully aligned RnF+ANOVA pipeline forms the ML baseline for all subsequent comparisons. Full per-variant breakdown is given in Appendix~\ref{app:rnf_variants}.
+To provide a fair reference point for the DL models, the RnF+ANOVA pipeline is run under the same deployment conditions: a single fixed split, normalisation on training data only, and no post-hoc selection of the best fold or feature count. Three protocol variants are evaluated to show how each condition affects reported ADR. Full breakdown is given in Appendix~\ref{app:rnf_variants}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\columnwidth]{figures/fig_bias_progression}
-  \caption{RnF+ANOVA ADR across protocol variants (trial\_1); the rightmost bar is the aligned baseline.}
+  \caption{RnF+ANOVA ADR across protocol variants (trial\_1); the rightmost bar is the deployment-condition baseline.}
   \label{fig:bias_progression}
 \end{figure}
 
@@ -71,9 +71,7 @@ device12 & \bigruLOTOadrTwelve & \lotoEERTwelve \\
 
 \subsection{ML vs.\ DL Comparison}
 
-Fig.~\ref{fig:ml_vs_dl_loto} places the revised RnF alongside all three DL models evaluated under LOTO cross-validation. No pipeline has a clear advantage: all models cluster in a \rnfADR--\bigruLOTOadrMean{} ADR band with overlapping uncertainty. The performance gap
-between the original and revised pipelines is entirely attributable to evaluation
-methodology.
+Fig.~\ref{fig:ml_vs_dl_loto} places the RnF baseline alongside all three DL models evaluated under LOTO cross-validation. No pipeline has a clear advantage: all models cluster in a \rnfADR--\bigruLOTOadrMean{} ADR band with overlapping uncertainty.
 
 \begin{figure}[htbp]
   \centering
