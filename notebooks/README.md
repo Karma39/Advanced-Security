@@ -36,7 +36,7 @@ All subsequent notebooks load from these caches — never from raw `.bin` files 
 
 ### `01_ml_baseline.ipynb` — RnF+ANOVA Baseline
 
-Replicates the original `RF_Fingerprint.py` pipeline (RnF+ANOVA) and progressively aligns the evaluation protocol to match the DL pipeline. Three protocol differences are identified and applied one at a time to quantify their individual impact on reported ADR.
+Replicates the original `RF_Fingerprint.py` pipeline (RnF+ANOVA) and runs it under the same real-world deployment conditions used for the DL models (single fixed split, normalisation on training only, no post-hoc selection). Three protocol variants are evaluated to show how each condition affects reported ADR, giving a comparable reference point for the DL results.
 
 **Variant A — Fold-aware feature selection:** ANOVA top-k is fitted on training data only within each fold, rather than on the full dataset before splitting.
 
@@ -44,8 +44,8 @@ Replicates the original `RF_Fingerprint.py` pipeline (RnF+ANOVA) and progressive
 
 **Variant C — Fixed k:** The number of features k is fixed a priori (k=50) rather than swept over the test set.
 
-| Protocol | ADR |
-|----------|-----|
+| Variant | ADR |
+|---------|-----|
 | Original (paper protocol) | **0.973** |
 | Variant A | 0.786 |
 | Variant A+B | 0.554 |
@@ -76,7 +76,7 @@ All three are statistically indistinguishable (Wilcoxon p > 0.0625 for all pairs
 ---
 
 ### `03_comparison.ipynb` — ML vs. DL Comparison
-Loads the saved results from notebooks 01 and 02 and displays them side by side. Examines whether the DL models offer any advantage over the RnF+ANOVA baseline under the aligned protocol (ADR = 0.458), and discusses whether the gap is architectural or a consequence of the small dataset size (134 transients total).
+Loads the saved results from notebooks 01 and 02 and displays them side by side. Compares DL model ADR against the RnF+ANOVA reference under the same deployment conditions (Variant A+B+C, ADR = 0.458), and discusses whether the performance gap is architectural or a consequence of the small dataset size (134 transients total).
 
 ---
 
