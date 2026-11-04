@@ -23,27 +23,6 @@ This project does **not** modify `RF_Fingerprint.py` or `src/`. It uses them as 
 
 ---
 
-## Key Findings
-
-### RnF+ANOVA pipeline — protocol variants
-
-The original pipeline reports ADR ≈ 0.97. Three protocol differences with respect to the DL evaluation are applied progressively:
-
-| Protocol | ADR | Change applied |
-|----------|-----|----------------|
-| Original (paper protocol) | **0.973** | — |
-| Variant A | 0.786 | ANOVA fitted inside each CV fold |
-| Variant A+B | 0.554 | All folds averaged |
-| Variant A+B+C | **0.458** | Fixed feature count k |
-
-### DL pipeline — evaluation (5 seeds, held-out test set)
-
-| Model | Auth TVR | Rogue TVR | ADR |
-|-------|----------|-----------|-----|
-| MLP-FV | 0.624 ± 0.050 | 0.680 ± 0.015 | **0.660 ± 0.019** |
-| GRU-DGT | 0.648 ± 0.131 | 0.567 ± 0.059 | **0.604 ± 0.055** |
-| BiGRU+SpecAug | 0.641 ± 0.069 | 0.616 ± 0.051 | **0.627 ± 0.025** |
-
 
 ---
 
